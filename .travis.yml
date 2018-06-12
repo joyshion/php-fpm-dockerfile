@@ -2,9 +2,9 @@ language: bash
 services: docker
 
 env:
-  - SOFT=php-fpm/7.0 REPO=shion/php-fpm:7.0
-  - SOFT=php-fpm/7.1 REPO=shion/php-fpm:7.1
-  - SOFT=php-fpm/7.2 REPO=shion/php-fpm:7.2
+  - SOFT=7.0 REPO=shion/php-fpm:7.0
+  - SOFT=7.1 REPO=shion/php-fpm:7.1
+  - SOFT=7.2 REPO=shion/php-fpm:7.2
 
 before_script:
   - env
