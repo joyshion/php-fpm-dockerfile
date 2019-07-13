@@ -98,6 +98,7 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
         --with-mysqli \
         --with-pdo-mysql=mysqlnd\
         --with-pdo-pgsql \
+        --with-sqlite=shared \
         --with-libedit \
         --with-libzip \
     && make \
