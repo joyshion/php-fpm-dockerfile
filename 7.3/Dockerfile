@@ -140,7 +140,7 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && cd /usr/src \
     && curl -o xdebug.tar.gz -L https://github.com/xdebug/xdebug/archive/${PHP_XDEBUG_VERSION}.tar.gz \
     && tar -zxvf xdebug.tar.gz \
-    && cd phpredis-${PHP_XDEBUG_VERSION} \
+    && cd xdebug-${PHP_XDEBUG_VERSION} \
     && phpize \
     && ./configure \
     && make \
