@@ -1,10 +1,9 @@
 FROM alpine:3.8
 MAINTAINER Shion <shion.chow@gmail.com>
 
-ENV PHP_VERSION 7.3.1
+ENV PHP_VERSION 7.3.10
 ENV PHP_MEMCACHED_VERSION 3.1.3
-ENV PHP_REDIS_VERSION 4.2.0
-ENV PHP_XDEBUG_VERSION 2.7.2
+ENV PHP_REDIS_VERSION 5.0.2
 
 ENV BUILD_TOOLS \
         autoconf \
@@ -136,16 +135,6 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=redis.so" >> $PHP_INI_DIR/conf.d/redis.ini \
-    # xdebug
-    && cd /usr/src \
-    && curl -o xdebug.tar.gz -L https://github.com/xdebug/xdebug/archive/${PHP_XDEBUG_VERSION}.tar.gz \
-    && tar -zxvf xdebug.tar.gz \
-    && cd xdebug-${PHP_XDEBUG_VERSION} \
-    && phpize \
-    && ./configure \
-    && make \
-    && make install \
-    && echo "extension=xdebug.so" >> $PHP_INI_DIR/conf.d/xdebug.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 
