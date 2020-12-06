@@ -1,7 +1,7 @@
-FROM alpine:3.6
+FROM alpine:3.8
 MAINTAINER Shion <shion.chow@gmail.com>
 
-ENV PHP_VERSION 7.0.33
+ENV PHP_VERSION 7.4.13
 ENV PHP_MEMCACHED_VERSION 3.1.5
 ENV PHP_REDIS_VERSION 5.3.2
 
@@ -22,12 +22,14 @@ ENV BUILD_DEPS \
         libedit-dev \
         libmcrypt-dev \
         libwebp-dev \
+        libxpm-dev \
         libpng-dev \
         libjpeg-turbo-dev \
         freetype-dev \
         postgresql-dev \
         libmemcached-dev \
         zlib-dev \
+        libzip-dev \
         cyrus-sasl-dev \
         libtool
 
@@ -38,10 +40,12 @@ ENV RUNTIME_DEPS \
         libedit \
         libmcrypt \
         libwebp \
+        libxpm \
         libpng \
         libjpeg-turbo \
         freetype \
         libpq \
+        libzip \
         libmemcached
 
 ENV PHP_INI_DIR /usr/local/etc/php
@@ -82,20 +86,21 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
             --with-webp-dir=/usr/lib \
             --with-jpeg-dir=/usr/lib \
             --with-png-dir=/usr/lib \
+            --with-xpm-dir=/usr/lib \
             --with-zlib-dir=/usr/lib \
             --with-freetype-dir=/usr/lib \
-            --enable-gd-native-ttf \
         --with-zlib \
         --with-bz2 \
         --with-curl \
-        --with-mcrypt \
         --with-mhash \
         --with-openssl \
         --with-pgsql \
         --with-mysqli \
-        --with-pdo-mysql=mysqlnd \
+        --with-pdo-mysql=mysqlnd\
         --with-pdo-pgsql \
+        --with-sqlite=shared \
         --with-libedit \
+        --with-libzip \
     && make \
     && make install \
     # config
