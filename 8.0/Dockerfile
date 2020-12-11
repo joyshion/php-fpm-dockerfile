@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.12
 MAINTAINER Shion <shion.chow@gmail.com>
 
 ENV PHP_VERSION 8.0.0
@@ -10,43 +10,20 @@ ENV BUILD_TOOLS \
         make \
         gcc \
         g++ \
-        libc-dev \
         file \
         re2c \
         curl
 
 ENV BUILD_DEPS \
+        sqlite-dev \
         curl-dev \
+        pcre2-dev \
         bzip2-dev \
         libxml2-dev \
-        libedit-dev \
-        libmcrypt-dev \
-        libwebp-dev \
-        libxpm-dev \
-        libpng-dev \
-        libjpeg-turbo-dev \
-        freetype-dev \
-        postgresql-dev \
-        libmemcached-dev \
-        zlib-dev \
+        gd-dev \
+        oniguruma-dev \
         libzip-dev \
-        cyrus-sasl-dev \
-        libtool
-
-ENV RUNTIME_DEPS \
-        libcurl \
-        libbz2 \
-        libxml2 \
-        libedit \
-        libmcrypt \
-        libwebp \
-        libxpm \
-        libpng \
-        libjpeg-turbo \
-        freetype \
-        libpq \
-        libzip \
-        libmemcached
+        libmemcached-dev
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
@@ -71,36 +48,34 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && ./configure \
         --with-config-file-path="$PHP_INI_DIR" \
         --with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
-        --disable-cgi \
         --enable-fpm \
-            --with-fpm-user=www-data \
-            --with-fpm-group=www-data \
-        --enable-mbstring \
-        --enable-bcmath \
-        --enable-zip \
-        --enable-exif \
-        --enable-mysqlnd \
-        --enable-pcntl \
-        --enable-shmop \
-        --with-gd \
-            --with-webp-dir=/usr/lib \
-            --with-jpeg-dir=/usr/lib \
-            --with-png-dir=/usr/lib \
-            --with-xpm-dir=/usr/lib \
-            --with-zlib-dir=/usr/lib \
-            --with-freetype-dir=/usr/lib \
-        --with-zlib \
-        --with-bz2 \
-        --with-curl \
-        --with-mhash \
+        --with-fpm-user=www-data \
+        --with-fpm-group=www-data \
+        --disable-short-tags \
         --with-openssl \
-        --with-pgsql \
-        --with-mysqli \
-        --with-pdo-mysql=mysqlnd\
-        --with-pdo-pgsql \
-        --with-sqlite=shared \
+        --with-external-pcre \
+        --with-pcre-jit \
+        --with-zlib \
+        --enable-bcmath \
+        --with-bz2 \
+        --enable-calendar \
+        --with-curl \
+        --disable-dom \
+        --enable-exif \
+        --with-openssl-dir \
+        --enable-gd \
+        --with-external-gd \
+        --with-webp \
+        --with-xpm \
+        --with-jpeg \
+        --with-freetype \
         --with-libedit \
-        --with-libzip \
+        --enable-mbstring \
+        --with-pdo-mysql \
+        --with-zlib-dir \
+        --with-zip \
+        --enable-mysqlnd \
+        --disable-fileinfo \
     && make \
     && make install \
     # config
@@ -109,7 +84,6 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && sed -i 's/;error_log = log\/php-fpm.log/error_log = \/proc\/self\/fd\/2/g' /usr/local/etc/php-fpm.conf \
     && sed -i 's/;daemonize = yes/daemonize = no/g' /usr/local/etc/php-fpm.conf \
     && sed -i 's!=NONE/!=!g' /usr/local/etc/php-fpm.conf \
-
     && sed -i 's/listen = 127.0.0.1:9000/listen = [::]:9000/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;access.log = log\/\$pool.access.log/access.log = \/proc\/self\/fd\/2/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;catch_workers_output = yes/catch_workers_output = yes/g' /usr/local/etc/php-fpm.d/www.conf \
