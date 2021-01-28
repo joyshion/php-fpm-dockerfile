@@ -31,6 +31,7 @@ ENV BUILD_DEPS \
         zlib-dev \
         libzip-dev \
         cyrus-sasl-dev \
+        sqlite-dev \
         libtool
 
 ENV RUNTIME_DEPS \
