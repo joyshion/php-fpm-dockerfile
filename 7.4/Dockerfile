@@ -1,9 +1,10 @@
 FROM alpine:3.8
-MAINTAINER Shion <shion.chow@gmail.com>
+LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 7.4.13
 ENV PHP_MEMCACHED_VERSION 3.1.5
 ENV PHP_REDIS_VERSION 5.3.2
+ENV PHP_SWOOLE_VERSION 4.6.6
 
 ENV BUILD_TOOLS \
         autoconf \
@@ -32,7 +33,8 @@ ENV BUILD_DEPS \
         libzip-dev \
         cyrus-sasl-dev \
         sqlite-dev \
-        libtool
+        libtool \
+        oniguruma-dev
 
 ENV RUNTIME_DEPS \
         libcurl \
@@ -59,6 +61,8 @@ RUN export CFLAGS="-fstack-protector-strong -fpic -fpie -O2" \
   && export CPPFLAGS=${CFLAGS} \
   && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
   && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 
 RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && apk add --no-cache --virtual .build-deps $BUILD_DEPS \
@@ -110,7 +114,6 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && sed -i 's/;error_log = log\/php-fpm.log/error_log = \/proc\/self\/fd\/2/g' /usr/local/etc/php-fpm.conf \
     && sed -i 's/;daemonize = yes/daemonize = no/g' /usr/local/etc/php-fpm.conf \
     && sed -i 's!=NONE/!=!g' /usr/local/etc/php-fpm.conf \
-
     && sed -i 's/listen = 127.0.0.1:9000/listen = [::]:9000/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;access.log = log\/\$pool.access.log/access.log = \/proc\/self\/fd\/2/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;catch_workers_output = yes/catch_workers_output = yes/g' /usr/local/etc/php-fpm.d/www.conf \
@@ -136,6 +139,16 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=redis.so" >> $PHP_INI_DIR/conf.d/redis.ini \
+    # swoole https://github.com/swoole/swoole-src/archive/refs/tags/v4.6.6.tar.gz
+    && cd /usr/src \
+    && curl -o swoole.tar.gz -L https://github.com/swoole/swoole-src/archive/refs/tags/v${PHP_SWOOLE_VERSION}.tar.gz \
+    && tar -zxvf swoole.tar.gz \
+    && cd swoole-src-${PHP_REDIS_VERSION} \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=swoole.so" >> $PHP_INI_DIR/conf.d/swoole.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 
