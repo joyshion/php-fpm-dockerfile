@@ -1,53 +1,47 @@
-FROM alpine:3.6
-MAINTAINER Shion <shion.chow@gmail.com>
+FROM alpine:3.14
+LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 7.1.33
 ENV PHP_MEMCACHED_VERSION 3.1.5
-ENV PHP_REDIS_VERSION 5.3.2
+ENV PHP_REDIS_VERSION 5.3.4
+ENV PHP_MONGODB_VERSION 1.10.0
 
 ENV BUILD_TOOLS \
-        autoconf \
-        make \
+        curl \
         gcc \
-        g++ \
         libc-dev \
-        file \
-        re2c \
-        curl
+        make \
+        autoconf
 
 ENV BUILD_DEPS \
+        libxml2-dev \
         curl-dev \
         bzip2-dev \
-        libxml2-dev \
-        libedit-dev \
-        libmcrypt-dev \
         libwebp-dev \
-        libpng-dev \
         libjpeg-turbo-dev \
-        freetype-dev \
+        libpng-dev freetype-dev \
+        libmcrypt-dev \
         postgresql-dev \
-        libmemcached-dev \
-        zlib-dev \
-        cyrus-sasl-dev \
-        libtool
+        libedit-dev \
+        libmemcached-dev
 
 ENV RUNTIME_DEPS \
+        libedit \
+        libpq \
+        libmcrypt \
+        libpng \
+        libjpeg-turbo \
+        libwebp \
         libcurl \
         libbz2 \
         libxml2 \
-        libedit \
-        libmcrypt \
-        libwebp \
-        libpng \
-        libjpeg-turbo \
         freetype \
-        libpq \
-        libmemcached
+        libmemcached \
+        icu-libs
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
-# 82 is the standard uid/gid for "www-data" in Alpine
-RUN addgroup -g 82 -S www-data && adduser -u 82 -D -S -G www-data www-data
+RUN adduser -u 82 -D -S -G www-data www-data
 
 # https://github.com/docker-library/php/issues/272
 RUN export CFLAGS="-fstack-protector-strong -fpic -fpie -O2" \
@@ -96,15 +90,13 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
         --with-pdo-mysql=mysqlnd \
         --with-pdo-pgsql \
         --with-libedit \
-    && make \
-    && make install \
+    && make && make install \
     # config
     && cp /usr/local/etc/php-fpm.conf.default /usr/local/etc/php-fpm.conf \
     && cp /usr/local/etc/php-fpm.d/www.conf.default /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;error_log = log\/php-fpm.log/error_log = \/proc\/self\/fd\/2/g' /usr/local/etc/php-fpm.conf \
     && sed -i 's/;daemonize = yes/daemonize = no/g' /usr/local/etc/php-fpm.conf \
     && sed -i 's!=NONE/!=!g' /usr/local/etc/php-fpm.conf \
-
     && sed -i 's/listen = 127.0.0.1:9000/listen = [::]:9000/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;access.log = log\/\$pool.access.log/access.log = \/proc\/self\/fd\/2/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;catch_workers_output = yes/catch_workers_output = yes/g' /usr/local/etc/php-fpm.d/www.conf \
@@ -130,6 +122,16 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=redis.so" >> $PHP_INI_DIR/conf.d/redis.ini \
+    # mongodb
+    && cd /usr/src \
+    && curl -o mongodb.tar.gz -L https://github.com/mongodb/mongo-php-driver/releases/download/${PHP_MONGODB_VERSION}/mongodb-${PHP_MONGODB_VERSION}.tgz \
+    && tar -zxvf mongodb.tar.gz \
+    && cd mongodb-${PHP_MONGODB_VERSION} \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=mongodb.so" >> $PHP_INI_DIR/conf.d/mongodb.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 
