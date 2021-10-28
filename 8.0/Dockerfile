@@ -1,40 +1,60 @@
-FROM alpine:3.12
-MAINTAINER Shion <shion.chow@gmail.com>
+FROM alpine:3.13
+LABEL maintainer="Shion <shion.chow@gmail.com>"
 
-ENV PHP_VERSION 8.0.0
+ENV PHP_VERSION 8.0.12
 ENV PHP_MEMCACHED_VERSION 3.1.5
-ENV PHP_REDIS_VERSION 5.3.2
+ENV PHP_REDIS_VERSION 5.3.4
+ENV PHP_MONGODB_VERSION 1.10.0
 
 ENV BUILD_TOOLS \
-        autoconf \
-        make \
-        gcc \
-        g++ \
-        file \
-        re2c \
-        curl
+    curl \
+    autoconf \
+    make \
+    gcc \
+    libc-dev
 
 ENV BUILD_DEPS \
-        sqlite-dev \
-        curl-dev \
-        pcre2-dev \
-        bzip2-dev \
-        libxml2-dev \
-        gd-dev \
-        oniguruma-dev \
-        libzip-dev \
-        libmemcached-dev
+    libxml2-dev \
+    curl-dev \
+    sqlite-dev \
+    gd-dev \
+    gettext-dev \
+    gmp-dev \
+    oniguruma-dev \
+    postgresql-dev \
+    libedit-dev \
+    libzip-dev \
+    libxpm-dev \
+    libmemcached-dev
+
+ENV RUNTIME_DEPS \
+    libpq \
+    gmp \
+    gettext-libs \
+    libxml2 \
+    sqlite-libs \
+    libcurl \
+    libpng \
+    libwebp \
+    libjpeg-turbo \
+    libxpm \
+    freetype \
+    oniguruma \
+    libedit \
+    libzip \
+    libmemcached \
+    icu-libs
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
 # 82 is the standard uid/gid for "www-data" in Alpine
-RUN addgroup -g 82 -S www-data && adduser -u 82 -D -S -G www-data www-data
+RUN addgroup -g 82 -S www-data && adduser -u 82 -D -H -S -G www-data www-data
 
 # https://github.com/docker-library/php/issues/272
 RUN export CFLAGS="-fstack-protector-strong -fpic -fpie -O2" \
-  && export CPPFLAGS=${CFLAGS} \
-  && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
-  && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
+    && export CPPFLAGS=${CFLAGS} \
+    && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
+    && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
 
 RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && apk add --no-cache --virtual .build-deps $BUILD_DEPS \
@@ -51,31 +71,27 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
         --enable-fpm \
         --with-fpm-user=www-data \
         --with-fpm-group=www-data \
+        --disable-cgi \
         --disable-short-tags \
         --with-openssl \
-        --with-external-pcre \
         --with-pcre-jit \
         --with-zlib \
         --enable-bcmath \
-        --with-bz2 \
-        --enable-calendar \
         --with-curl \
-        --disable-dom \
         --enable-exif \
-        --with-openssl-dir \
         --enable-gd \
-        --with-external-gd \
         --with-webp \
-        --with-xpm \
         --with-jpeg \
+        --with-xpm \
         --with-freetype \
-        --with-libedit \
+        --with-gettext \
+        --with-gmp \
         --enable-mbstring \
         --with-pdo-mysql \
-        --with-zlib-dir \
+        --with-pdo-pgsql \
+        --with-libedit \
         --with-zip \
         --enable-mysqlnd \
-        --disable-fileinfo \
     && make \
     && make install \
     # config
@@ -109,6 +125,16 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=redis.so" >> $PHP_INI_DIR/conf.d/redis.ini \
+    # mongodb
+    && cd /usr/src \
+    && curl -o mongodb.tar.gz -L https://github.com/mongodb/mongo-php-driver/releases/download/${PHP_MONGODB_VERSION}/mongodb-${PHP_MONGODB_VERSION}.tgz \
+    && tar -zxvf mongodb.tar.gz \
+    && cd mongodb-${PHP_MONGODB_VERSION} \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=mongodb.so" >> $PHP_INI_DIR/conf.d/mongodb.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 

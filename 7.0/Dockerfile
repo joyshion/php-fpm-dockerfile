@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.13
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 7.0.33
@@ -7,47 +7,51 @@ ENV PHP_REDIS_VERSION 5.3.4
 ENV PHP_MONGODB_VERSION 1.9.2
 
 ENV BUILD_TOOLS \
-        curl \
-        gcc \
-        libc-dev \
-        make \
-        autoconf
+    curl \
+    autoconf \
+    make \
+    gcc \
+    libc-dev
 
 ENV BUILD_DEPS \
-        libxml2-dev \
-        curl-dev \
-        bzip2-dev \
-        libwebp-dev \
-        libjpeg-turbo-dev \
-        libpng-dev freetype-dev \
-        libmcrypt-dev \
-        postgresql-dev \
-        libedit-dev \
-        libmemcached-dev
+    libxml2-dev \
+    curl-dev gd-dev \
+    gettext-dev \
+    gmp-dev \
+    libmcrypt-dev \
+    postgresql-dev \
+    libedit-dev \
+    libzip-dev \
+    libxpm-dev \
+    libmemcached-dev
 
 ENV RUNTIME_DEPS \
-        libedit \
-        libpq \
-        libmcrypt \
-        libpng \
-        libjpeg-turbo \
-        libwebp \
-        libcurl \
-        libbz2 \
-        libxml2 \
-        freetype \
-        libmemcached \
-        icu-libs
+    libpq \
+    gmp \
+    libmcrypt \
+    gettext-libs \
+    libxml2 \
+    libcurl \
+    libpng \
+    libwebp \
+    libjpeg-turbo \
+    libxpm \
+    freetype \
+    libedit \
+    libzip \
+    libmemcached \
+    icu-libs
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
-RUN adduser -u 82 -D -S -G www-data www-data
+# 82 is the standard uid/gid for "www-data" in Alpine
+RUN addgroup -g 82 -S www-data && adduser -u 82 -D -H -S -G www-data www-data
 
 # https://github.com/docker-library/php/issues/272
 RUN export CFLAGS="-fstack-protector-strong -fpic -fpie -O2" \
-  && export CPPFLAGS=${CFLAGS} \
-  && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
-  && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
+    && export CPPFLAGS=${CFLAGS} \
+    && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
+    && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
 
 RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && apk add --no-cache --virtual .build-deps $BUILD_DEPS \
@@ -61,36 +65,35 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && ./configure \
         --with-config-file-path="$PHP_INI_DIR" \
         --with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
-        --disable-cgi \
         --enable-fpm \
-            --with-fpm-user=www-data \
-            --with-fpm-group=www-data \
-        --enable-mbstring \
-        --enable-bcmath \
-        --enable-zip \
-        --enable-exif \
-        --enable-mysqlnd \
-        --enable-pcntl \
-        --enable-shmop \
-        --with-gd \
-            --with-webp-dir=/usr/lib \
-            --with-jpeg-dir=/usr/lib \
-            --with-png-dir=/usr/lib \
-            --with-zlib-dir=/usr/lib \
-            --with-freetype-dir=/usr/lib \
-            --enable-gd-native-ttf \
-        --with-zlib \
-        --with-bz2 \
-        --with-curl \
-        --with-mcrypt \
-        --with-mhash \
+        --with-fpm-user=www-data \
+        --with-fpm-group=www-data \
+        --disable-cgi \
+        --disable-short-tags \
         --with-openssl \
-        --with-pgsql \
-        --with-mysqli \
-        --with-pdo-mysql=mysqlnd \
+        --with-pcre-jit \
+        --with-zlib \
+        --enable-bcmath \
+        --with-curl \
+        --with-gd \
+        --with-webp-dir \
+        --with-jpeg-dir \
+        --with-png-dir \
+        --with-xpm-dir \
+        --with-freetype-dir \
+        --enable-gd-native-ttf \
+        --with-gettext \
+        --with-gmp \
+        --enable-mbstring \
+        --with-mcrypt \
+        --with-pdo-mysql \
         --with-pdo-pgsql \
         --with-libedit \
-    && make && make install \
+        --enable-zip \
+        --with-libzip \
+        --enable-mysqlnd \
+    && make \
+    && make install \
     # config
     && cp /usr/local/etc/php-fpm.conf.default /usr/local/etc/php-fpm.conf \
     && cp /usr/local/etc/php-fpm.d/www.conf.default /usr/local/etc/php-fpm.d/www.conf \

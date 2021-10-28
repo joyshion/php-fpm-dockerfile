@@ -1,68 +1,60 @@
-FROM alpine:3.8
+FROM alpine:3.13
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
-ENV PHP_VERSION 7.4.13
+ENV PHP_VERSION 7.4.25
 ENV PHP_MEMCACHED_VERSION 3.1.5
-ENV PHP_REDIS_VERSION 5.3.2
-ENV PHP_SWOOLE_VERSION 4.6.6
+ENV PHP_REDIS_VERSION 5.3.4
+ENV PHP_MONGODB_VERSION 1.10.0
 
 ENV BUILD_TOOLS \
-        autoconf \
-        make \
-        gcc \
-        g++ \
-        libc-dev \
-        file \
-        re2c \
-        curl
+    curl \
+    autoconf \
+    make \
+    gcc \
+    libc-dev
 
 ENV BUILD_DEPS \
-        curl-dev \
-        bzip2-dev \
-        libxml2-dev \
-        libedit-dev \
-        libmcrypt-dev \
-        libwebp-dev \
-        libxpm-dev \
-        libpng-dev \
-        libjpeg-turbo-dev \
-        freetype-dev \
-        postgresql-dev \
-        libmemcached-dev \
-        zlib-dev \
-        libzip-dev \
-        cyrus-sasl-dev \
-        sqlite-dev \
-        libtool \
-        oniguruma-dev
+    libxml2-dev \
+    curl-dev \
+    sqlite-dev \
+    gd-dev \
+    gettext-dev \
+    gmp-dev \
+    oniguruma-dev \
+    postgresql-dev \
+    libedit-dev \
+    libzip-dev \
+    libxpm-dev \
+    libmemcached-dev
 
 ENV RUNTIME_DEPS \
-        libcurl \
-        libbz2 \
-        libxml2 \
-        libedit \
-        libmcrypt \
-        libwebp \
-        libxpm \
-        libpng \
-        libjpeg-turbo \
-        freetype \
-        libpq \
-        libzip \
-        libmemcached
+    libpq \
+    gmp \
+    gettext-libs \
+    libxml2 \
+    sqlite-libs \
+    libcurl \
+    libpng \
+    libwebp \
+    libjpeg-turbo \
+    libxpm \
+    freetype \
+    oniguruma \
+    libedit \
+    libzip \
+    libmemcached \
+    icu-libs
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
 # 82 is the standard uid/gid for "www-data" in Alpine
-RUN addgroup -g 82 -S www-data && adduser -u 82 -D -S -G www-data www-data
+RUN addgroup -g 82 -S www-data && adduser -u 82 -D -H -S -G www-data www-data
 
 # https://github.com/docker-library/php/issues/272
 RUN export CFLAGS="-fstack-protector-strong -fpic -fpie -O2" \
-  && export CPPFLAGS=${CFLAGS} \
-  && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
-  && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
-
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+    && export CPPFLAGS=${CFLAGS} \
+    && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
+    && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
 
 RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && apk add --no-cache --virtual .build-deps $BUILD_DEPS \
@@ -76,36 +68,30 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && ./configure \
         --with-config-file-path="$PHP_INI_DIR" \
         --with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
-        --disable-cgi \
         --enable-fpm \
-            --with-fpm-user=www-data \
-            --with-fpm-group=www-data \
-        --enable-mbstring \
-        --enable-bcmath \
-        --enable-zip \
-        --enable-exif \
-        --enable-mysqlnd \
-        --enable-pcntl \
-        --enable-shmop \
-        --with-gd \
-            --with-webp-dir=/usr/lib \
-            --with-jpeg-dir=/usr/lib \
-            --with-png-dir=/usr/lib \
-            --with-xpm-dir=/usr/lib \
-            --with-zlib-dir=/usr/lib \
-            --with-freetype-dir=/usr/lib \
-        --with-zlib \
-        --with-bz2 \
-        --with-curl \
-        --with-mhash \
+        --with-fpm-user=www-data \
+        --with-fpm-group=www-data \
+        --disable-cgi \
+        --disable-short-tags \
         --with-openssl \
-        --with-pgsql \
-        --with-mysqli \
-        --with-pdo-mysql=mysqlnd\
+        --with-pcre-jit \
+        --with-zlib \
+        --enable-bcmath \
+        --with-curl \
+        --enable-exif \
+        --enable-gd \
+        --with-webp \
+        --with-jpeg \
+        --with-xpm \
+        --with-freetype \
+        --with-gettext \
+        --with-gmp \
+        --enable-mbstring \
+        --with-pdo-mysql \
         --with-pdo-pgsql \
-        --with-sqlite=shared \
         --with-libedit \
-        --with-libzip \
+        --with-zip \
+        --enable-mysqlnd \
     && make \
     && make install \
     # config
@@ -139,16 +125,16 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=redis.so" >> $PHP_INI_DIR/conf.d/redis.ini \
-    # swoole https://github.com/swoole/swoole-src/archive/refs/tags/v4.6.6.tar.gz
+    # mongodb
     && cd /usr/src \
-    && curl -o swoole.tar.gz -L https://github.com/swoole/swoole-src/archive/refs/tags/v${PHP_SWOOLE_VERSION}.tar.gz \
-    && tar -zxvf swoole.tar.gz \
-    && cd swoole-src-${PHP_REDIS_VERSION} \
+    && curl -o mongodb.tar.gz -L https://github.com/mongodb/mongo-php-driver/releases/download/${PHP_MONGODB_VERSION}/mongodb-${PHP_MONGODB_VERSION}.tgz \
+    && tar -zxvf mongodb.tar.gz \
+    && cd mongodb-${PHP_MONGODB_VERSION} \
     && phpize \
     && ./configure \
     && make \
     && make install \
-    && echo "extension=swoole.so" >> $PHP_INI_DIR/conf.d/swoole.ini \
+    && echo "extension=mongodb.so" >> $PHP_INI_DIR/conf.d/mongodb.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 
