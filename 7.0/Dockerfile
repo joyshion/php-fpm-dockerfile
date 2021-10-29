@@ -53,7 +53,6 @@ RUN export CFLAGS="-fstack-protector-strong -fpic -fpie -O2" \
     && export LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie" \
     && export MAKEFLAGS="-j $(getconf _NPROCESSORS_ONLN)"
 
-# php7.0 install
 RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && apk add --no-cache --virtual .build-deps $BUILD_DEPS \
     && apk add --no-cache --virtual .runtime-deps $RUNTIME_DEPS \
