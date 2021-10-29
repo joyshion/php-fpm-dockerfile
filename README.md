@@ -1,4 +1,5 @@
 # PHP-FPM Dockerfile
+[![CI](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/docker-image.yml/badge.svg)](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/docker-image.yml)
 
 Build on Alpine. 
 
