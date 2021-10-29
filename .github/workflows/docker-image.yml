@@ -1,0 +1,15 @@
+name: docker image
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build_70:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build PHP-FPM 7.0 Docker image
+      run: docker build . --file ./7.0/Dockerfile --tag shion/php-fpm:7.0
