@@ -1,0 +1,27 @@
+name: php-fpm 7.1
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PWD }}
+      -
+        name: Build and push php7.1
+        uses: docker/build-push-action@v2
+        with:
+          context: ./7.1
+          push: true
+          tags: shion/php-fpm:7.1
