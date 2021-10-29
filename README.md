@@ -1,7 +1,5 @@
 # PHP-FPM Dockerfile
 
-[![Build Status](https://app.travis-ci.com/joyshion/php-fpm-dockerfile.svg?branch=master)](https://app.travis-ci.com/joyshion/php-fpm-dockerfile)
-
 Build on Alpine. 
 
 ### Include
