@@ -1,10 +1,11 @@
-FROM alpine:3.13
+FROM alpine:3.18
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 7.1.33
-ENV PHP_MEMCACHED_VERSION 3.1.5
-ENV PHP_REDIS_VERSION 5.3.4
-ENV PHP_MONGODB_VERSION 1.10.0
+ENV PHP_MEMCACHED_VERSION 3.2.0
+ENV PHP_REDIS_VERSION 5.3.7
+ENV PHP_MONGODB_VERSION 1.16.1
+ENV PHP_IMAGICK_VERSION 3.7.0
 
 ENV BUILD_TOOLS \
     curl \
@@ -23,7 +24,8 @@ ENV BUILD_DEPS \
     libedit-dev \
     libzip-dev \
     libxpm-dev \
-    libmemcached-dev
+    libmemcached-dev \
+    imagemagick-dev
 
 ENV RUNTIME_DEPS \
     libpq \
@@ -40,7 +42,8 @@ ENV RUNTIME_DEPS \
     libedit \
     libzip \
     libmemcached \
-    icu-libs
+    icu-libs \
+    imagemagick
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
@@ -135,6 +138,16 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=mongodb.so" >> $PHP_INI_DIR/conf.d/mongodb.ini \
+    # imagick
+    && cd /usr/src \
+    && curl -o imagick.tar.gz -L https://pecl.php.net/get/imagick-${PHP_IMAGICK_VERSION}.tgz \
+    && tar -zxvf imagick.tar.gz \
+    && cd imagick-${PHP_IMAGICK_VERSION} \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=imagick.so" >> $PHP_INI_DIR/conf.d/imagick.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 
