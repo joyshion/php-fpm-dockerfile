@@ -48,7 +48,6 @@ ENV RUNTIME_DEPS \
 ENV PHP_INI_DIR /usr/local/etc/php
 
 # 82 is the standard uid/gid for "www-data" in Alpine
-# RUN adduser -u 82 -D -H -S -G www-data www-data
 RUN addgroup -g 82 -S www-data && adduser -u 82 -D -H -S -G www-data www-data
 
 # https://github.com/docker-library/php/issues/272
