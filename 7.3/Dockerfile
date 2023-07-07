@@ -45,8 +45,6 @@ ENV PHP_INI_DIR /usr/local/etc/php
 
 RUN adduser -u 82 -D -H -S -G www-data www-data
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-
 # https://github.com/docker-library/php/issues/272
 RUN export CFLAGS="-fstack-protector-strong -fpic -fpie -O2" \
     && export CPPFLAGS=${CFLAGS} \
@@ -109,7 +107,7 @@ RUN mkdir -p $PHP_INI_DIR/conf.d \
     && cd /usr/src \
     && curl -o memcached.tar.gz -L https://pecl.php.net/get/memcached \
     && tar -zxvf memcached.tar.gz \
-    && cd php-memcached-* \
+    && cd memcached-* \
     && phpize \
     && ./configure --enable-memcached-json --disable-memcached-sasl \
     && make \
@@ -119,7 +117,7 @@ RUN mkdir -p $PHP_INI_DIR/conf.d \
     && cd /usr/src \
     && curl -o redis.tar.gz -L https://pecl.php.net/get/redis \
     && tar -zxvf redis.tar.gz \
-    && cd phpredis-* \
+    && cd redis-* \
     && phpize \
     && ./configure \
     && make \
