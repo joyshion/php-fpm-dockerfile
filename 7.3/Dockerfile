@@ -27,6 +27,7 @@ ENV BUILD_DEPS \
     imagemagick-dev
 
 ENV RUNTIME_DEPS \
+    libcurl \
     libxml2 \
     libwebp \
     libjpeg-turbo \
@@ -37,6 +38,7 @@ ENV RUNTIME_DEPS \
     libedit \
     libzip \
     libpq \
+    gmp \
     imagemagick-libs \
     libmemcached \
     icu-libs
