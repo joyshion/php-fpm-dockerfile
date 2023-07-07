@@ -26,8 +26,8 @@ ENV BUILD_DEPS \
     postgresql-dev \
     libedit-dev \
     libzip-dev \
-    libmemcached6-dev \
-    imagemagick-dev
+    libmemcached-dev \
+    imagemagick6-dev
 
 ENV RUNTIME_DEPS \
     libcurl \
@@ -45,8 +45,8 @@ ENV RUNTIME_DEPS \
     sqlite-libs \
     oniguruma \
     imagemagick6-libs \
-    libmemcached \
-    icu-libs
+    icu-libs \
+    libmemcached
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
