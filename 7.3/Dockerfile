@@ -24,7 +24,7 @@ ENV BUILD_DEPS \
     libedit-dev \
     libzip-dev \
     libmemcached-dev \
-    imagemagick-dev
+    imagemagick6-dev
 
 ENV RUNTIME_DEPS \
     libcurl \
@@ -39,7 +39,7 @@ ENV RUNTIME_DEPS \
     libzip \
     libpq \
     gmp \
-    imagemagick-libs \
+    imagemagick6-libs \
     libmemcached \
     icu-libs
 
