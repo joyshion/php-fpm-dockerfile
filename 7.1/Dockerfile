@@ -29,6 +29,7 @@ ENV BUILD_DEPS \
     imagemagick-dev
 
 ENV RUNTIME_DEPS \
+    libcurl \
     libzip \
     libedit \
     libpq \
