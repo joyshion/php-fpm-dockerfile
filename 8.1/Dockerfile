@@ -24,7 +24,7 @@ ENV BUILD_DEPS \
     libzip-dev \
     libxpm-dev \
     libmemcached-dev \
-    imagemagick6-dev
+    imagemagick-dev
 
 ENV RUNTIME_DEPS \
     libpq \
@@ -44,7 +44,7 @@ ENV RUNTIME_DEPS \
     libzip \
     libmemcached \
     icu-libs \
-    imagemagick6
+    imagemagick
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
