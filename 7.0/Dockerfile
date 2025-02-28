@@ -2,7 +2,7 @@ FROM alpine:3.16
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 7.0.33
-ENV PHP_MONGODB_VERSION 1.9.2
+ENV PHP_REDIS_VERSION 3.1.5
 
 ENV BUILD_TOOLS \
     curl \
@@ -24,9 +24,7 @@ ENV BUILD_DEPS \
     libmcrypt-dev \
     postgresql-dev \
     libedit-dev \
-    libzip-dev \
-    libmemcached-dev \
-    imagemagick-dev
+    libzip-dev
 
 ENV RUNTIME_DEPS \
     libcurl \
@@ -41,9 +39,7 @@ ENV RUNTIME_DEPS \
     libwebp \
     libxml2 \
     freetype \
-    libmemcached \
-    icu-libs \
-    imagemagick
+    icu-libs
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
@@ -107,19 +103,9 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && sed -i 's/;catch_workers_output = yes/catch_workers_output = yes/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;clear_env = no/clear_env = yes/g' /usr/local/etc/php-fpm.d/www.conf \
     && echo "zend_extension=opcache.so" >> $PHP_INI_DIR/conf.d/opcache.ini \
-    # memcached
-    && cd /usr/src \
-    && curl -o memcached.tar.gz -L https://pecl.php.net/get/memcached \
-    && tar -zxvf memcached.tar.gz \
-    && cd memcached-* \
-    && phpize \
-    && ./configure --enable-memcached-json --disable-memcached-sasl \
-    && make \
-    && make install \
-    && echo "extension=memcached.so" >> $PHP_INI_DIR/conf.d/memcached.ini \
     # redis
     && cd /usr/src \
-    && curl -o redis.tar.gz -L https://pecl.php.net/get/redis \
+    && curl -o redis.tar.gz -L https://pecl.php.net/get/redis-${PHP_REDIS_VERSION}.tgz \
     && tar -zxvf redis.tar.gz \
     && cd redis-* \
     && phpize \
@@ -127,26 +113,6 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=redis.so" >> $PHP_INI_DIR/conf.d/redis.ini \
-    # mongodb
-    && cd /usr/src \
-    && curl -o mongodb.tar.gz -L https://pecl.php.net/get/mongodb-${PHP_MONGODB_VERSION}.tgz \
-    && tar -zxvf mongodb.tar.gz \
-    && cd mongodb-${PHP_MONGODB_VERSION} \
-    && phpize \
-    && ./configure \
-    && make \
-    && make install \
-    && echo "extension=mongodb.so" >> $PHP_INI_DIR/conf.d/mongodb.ini \
-    # imagick
-    && cd /usr/src \
-    && curl -o imagick.tar.gz -L https://pecl.php.net/get/imagick \
-    && tar -zxvf imagick.tar.gz \
-    && cd imagick-* \
-    && phpize \
-    && ./configure \
-    && make \
-    && make install \
-    && echo "extension=imagick.so" >> $PHP_INI_DIR/conf.d/imagick.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 
