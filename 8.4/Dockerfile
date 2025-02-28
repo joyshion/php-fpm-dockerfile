@@ -1,7 +1,7 @@
-FROM alpine:3.16
+FROM alpine:3.18
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
-ENV PHP_VERSION 8.0.30
+ENV PHP_VERSION 8.4.4
 
 ENV BUILD_TOOLS \
     pkgconf \
@@ -24,7 +24,7 @@ ENV BUILD_DEPS \
     libzip-dev \
     libxpm-dev \
     libmemcached-dev \
-    imagemagick6-dev
+    imagemagick-dev
 
 ENV RUNTIME_DEPS \
     libpq \
@@ -44,7 +44,7 @@ ENV RUNTIME_DEPS \
     libzip \
     libmemcached \
     icu-libs \
-    imagemagick6
+    imagemagick
 
 ENV PHP_INI_DIR /usr/local/etc/php
 

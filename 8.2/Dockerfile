@@ -1,7 +1,7 @@
 FROM alpine:3.18
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
-ENV PHP_VERSION 8.2.8
+ENV PHP_VERSION 8.2.27
 
 ENV BUILD_TOOLS \
     pkgconf \

@@ -7,6 +7,8 @@
 [![php-fpm 8.0](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php80.yml/badge.svg)](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php80.yml)
 [![php-fpm 8.1](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php81.yml/badge.svg)](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php81.yml)
 [![php-fpm 8.2](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php82.yml/badge.svg)](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php82.yml)
+[![php-fpm 8.3](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php83.yml/badge.svg)](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php83.yml)
+[![php-fpm 8.4](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php84.yml/badge.svg)](https://github.com/joyshion/php-fpm-dockerfile/actions/workflows/php84.yml)
 
 Build on Alpine. 
 
@@ -17,7 +19,8 @@ Build on Alpine.
 - Imagick
 
 ### Tags
-- `8.2`, ` latest`
+- `8.4`, ` latest`
+- `8.3`
 - `8.1`
 - `8.0`
 - `7.4`
