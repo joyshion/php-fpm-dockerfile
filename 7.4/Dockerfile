@@ -2,6 +2,7 @@ FROM alpine:3.16
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 7.4.33
+ENV PHP_REDIS_VERSION 6.1.0
 
 ENV BUILD_TOOLS \
     pkgconf \
@@ -106,7 +107,7 @@ RUN mkdir -p $PHP_INI_DIR/conf.d \
     && echo "zend_extension=opcache.so" >> $PHP_INI_DIR/conf.d/opcache.ini \
     # redis
     && cd /usr/src \
-    && curl -o redis.tar.gz -L https://pecl.php.net/get/redis \
+    && curl -o redis.tar.gz -L https://pecl.php.net/get/redis-${PHP_REDIS_VERSION}.tgz \
     && tar -zxvf redis.tar.gz \
     && cd redis-* \
     && phpize \

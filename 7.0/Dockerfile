@@ -2,7 +2,7 @@ FROM alpine:3.16
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 7.0.33
-ENV PHP_REDIS_VERSION 3.1.5
+ENV PHP_REDIS_VERSION 6.0.2
 
 ENV BUILD_TOOLS \
     curl \
