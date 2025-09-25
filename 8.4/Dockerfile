@@ -3,6 +3,7 @@ LABEL maintainer="Shion <shion.chow@gmail.com>"
 
 ENV PHP_VERSION 8.4.12
 ENV PHP_REDIS_VERSION 6.2.0
+ENV PHP_SWOOLE_VERSION 5.1.8
 
 ENV BUILD_TOOLS \
     pkgconf \
@@ -113,6 +114,16 @@ RUN apk add --no-cache --virtual .build-tools $BUILD_TOOLS \
     && make \
     && make install \
     && echo "extension=redis.so" >> $PHP_INI_DIR/conf.d/redis.ini \
+    # swoole
+    && cd /usr/src \
+    && curl -o swoole.tar.gz -L https://pecl.php.net/get/swoole-${PHP_SWOOLE_VERSION}.tgz \
+    && tar -zxvf swoole.tar.gz \
+    && cd swoole-* \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=swoole.so" >> $PHP_INI_DIR/conf.d/swoole.ini \
     # clear
     && cd ~ && rm -rf /usr/src && apk del .build-tools .build-deps
 

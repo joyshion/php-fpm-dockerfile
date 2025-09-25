@@ -14,6 +14,7 @@ Build on Alpine.
 
 ### Include
 - Redis
+- Swoole (8.4)
 
 ### Tags
 - `8.4`, ` latest`
