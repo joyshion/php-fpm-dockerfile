@@ -1,7 +1,7 @@
 FROM alpine:3.18
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
-ENV PHP_VERSION 8.1.31
+ENV PHP_VERSION 8.1.33
 ENV PHP_REDIS_VERSION 6.1.0
 
 ENV BUILD_TOOLS \

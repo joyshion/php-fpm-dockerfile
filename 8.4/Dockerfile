@@ -1,8 +1,8 @@
 FROM alpine:3.18
 LABEL maintainer="Shion <shion.chow@gmail.com>"
 
-ENV PHP_VERSION 8.4.4
-ENV PHP_REDIS_VERSION 6.1.0
+ENV PHP_VERSION 8.4.12
+ENV PHP_REDIS_VERSION 6.2.0
 
 ENV BUILD_TOOLS \
     pkgconf \
